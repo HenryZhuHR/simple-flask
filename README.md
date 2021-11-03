@@ -10,3 +10,8 @@
     "image":"image"
 }
 ```
+
+命令列表
+|   command   |    code    |
+| :---------: | :--------: |
+| robustModel | 0002之类的 |
