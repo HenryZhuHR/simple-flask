@@ -11,16 +11,16 @@
 ```json
 {
     "command": "chooseImage",
-    "chooseError": 00,
+    "chooseError1": 10,
     "imageOrigin":"imageOrigin"
 }
 ```
 - 返回值
 
-| code  | chooseError |
-| :---: | :--------:  |
-|  00   | 合法无报错   |
-|  01   | 图片不合法   |
+| code  | chooseError1 |
+| :---: | :--------:   |
+|  10   | 合法无报错    |
+|  11   | 图片不合法    |
 
 | code  | imageOrigin |
 | :---: | :--------:  |
@@ -37,7 +37,7 @@
 ```json
 {
     "command": "originModel",
-    "chooseError1": 10,
+    "chooseError2": 20,
     "imageNumber1": 1,
     "originImageOutput1": [0.1, 0.1, 0.5, 0.2, 0, 0, 0.1, 0, 0, 0],
     "reconsImageOutput1": [0.1, 0.1, 0.5, 0.2, 0, 0, 0.1, 0, 0, 0]
@@ -45,10 +45,10 @@
 ```
 - 返回值
 
-| code  | chooseError1 |
+| code  | chooseError2 |
 | :---: | :--------:   |
-|  10   | 合法无报错    |
-|  11   | 图片不合法    |
+|  20   | 合法无报错    |
+|  21   | 图片不合法    |
 
 | code  | imageNumber1       |
 | :---: | :----------------: |
@@ -74,7 +74,7 @@
 ```json
 {
     "command": "robustModel",
-    "chooseError2": 20,
+    "chooseError3": 30,
     "imageNumber2": 1,
     "originImageOutput2": [0.1, 0.1, 0.5, 0.2, 0, 0, 0.1, 0, 0, 0],
     "reconsImageOutput2": [0.1, 0.1, 0.5, 0.2, 0, 0, 0.1, 0, 0, 0]
@@ -82,10 +82,10 @@
 ```
 - 返回值
 
-| code  | chooseError2 |
+| code  | chooseError3 |
 | :---: | :--------:   |
-|  20   | 合法无报错    |
-|  21   | 图片不合法    |
+|  30   | 合法无报错    |
+|  31   | 图片不合法    |
 
 | code  | imageNumber2       |
 | :---: | :----------------: |
@@ -111,16 +111,16 @@
 ```json
 {
     "command": "reconsDefense",
-    "chooseError3": 30,
+    "chooseError4": 40,
     "imageRecons": "imageRecons"
 }
 ```
 - 返回值
 
-| code  | chooseError3 |
+| code  | chooseError4 |
 | :---: | :--------:   |
-|  30   | 合法无报错    |
-|  31   | 图片不合法    |
+|  40   | 合法无报错    |
+|  41   | 图片不合法    |
 
 | code  | imageRecons |
 | :---: | :--------:  |
@@ -137,7 +137,7 @@
 ```json
 {
     "command": "adverDetection",
-    "chooseError4": 40,
+    "chooseError5": 50,
     "imageNumber3": 1,
     "originAdver": 1,
     "originRisk": 0.8,
@@ -149,10 +149,10 @@
 
 - 返回值
 
-| code  | chooseError4 |
+| code  | chooseError5 |
 | :---: | :--------:   |
-|  40   | 合法无报错    |
-|  41   | 图片不合法    |
+|  50   | 合法无报错    |
+|  51   | 图片不合法    |
 
 | code  | imageNumber3       |
 | :---: | :----------------: |
@@ -195,9 +195,9 @@
 ```json
 {
     "command": "wholePipeline",
-    "chooseError5": 50,
+    "chooseError6": 60,
     "imageRecons": "imageRecons",
-    "chooseError4": 40,
+    "chooseError5": 50,
     "imageNumber3": 1,
     "originAdver": 1,
     "originRisk": 0.8,
@@ -213,19 +213,19 @@
 
 - 返回值
 
-| code  | chooseError5 |
+| code  | chooseError6 |
 | :---: | :--------:   |
-|  50   | 合法无报错    |
-|  51   | 图片不合法    |
+|  60   | 合法无报错    |
+|  61   | 图片不合法    |
 
 | code  | imageRecons |
 | :---: | :--------:  |
 |      返回重建图像    |
 
-| code  | chooseError4 |
+| code  | chooseError5 |
 | :---: | :--------:   |
-|  40   | 合法无报错    |
-|  41   | 图片不合法    |
+|  50   | 合法无报错    |
+|  51   | 图片不合法    |
 
 | code  | imageNumber3       |
 | :---: | :----------------: |
@@ -289,17 +289,17 @@
 ```json
 {
     "command": "realWorldPlatform",
-    "chooseError6": 60,
+    "chooseError7": 70,
     "imageProcess": "imageProcess",
     "realtimeOutput": [0.1, 0.1, 0.5, 0.2, 0, 0, 0.1, 0, 0, 0]
 }
 ```
 - 返回值
 
-| code  | chooseError6 |
+| code  | chooseError7 |
 | :---: | :--------:   |
-|  60   | 合法无报错    |
-|  61   | 图片不合法    |
+|  70   | 合法无报错    |
+|  71   | 图片不合法    |
 
 | code  | imageProcess |
 | :---: | :--------:   |
