@@ -13,6 +13,9 @@ _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
     }
 })
 
+@app.route("/")
+def hello():
+    return '<h1 style="color:blue">Hello There!</h1>'
 
 @app.route('/select_image/', methods=['post'])
 def select_image():
@@ -57,4 +60,5 @@ def robust_model():
 
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.141', port=2021)
+    # app.run(host='192.168.1.141', port=2021)
+    app.run(host='127.0.0.1', port=2021)
