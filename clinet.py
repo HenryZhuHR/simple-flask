@@ -12,6 +12,7 @@ url = 'http://1.116.121.100/select_image/'
 # url = 'http://202.114.107.172/select_image/'
 
 
+
 response = requests.post(url, data=json.dumps({
     'image': 'adv_100001.png'
 }))
