@@ -12,10 +12,10 @@ import requests
 import base64
 
 URL_BASE='http://1.116.121.100'
-# URL_BASE='http://127.0.0.1:2021'
+URL_BASE='http://127.0.0.1:2021'
 
 
-url = '%s/select_image/'%URL_BASE
+url = '%s/select_image'%URL_BASE
 data = {
     'file_name': 'adv_101802.png'
 }
@@ -39,8 +39,8 @@ else:
         print(' [INFO] Image get from server write to getImage.jpg')
 print()
 
-data['topk'] = 10
-url = '%s/robust_model/'%URL_BASE
-response = requests.post(url, data=json.dumps(data))
+
+url = '%s/robust_model'%URL_BASE
+response = requests.post(url, data=json.dumps({}))
 from pprint import pprint
 pprint(response.json())
