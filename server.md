@@ -15,7 +15,8 @@ sudo apt install -y uwsgi nginx
 配置文件
 ```ini
 [uwsgi]
-
+# uid=www-data # Ubuntu系统下默认用户名
+# gid=www-data # Ubuntu系统下默认用户组
 socket            = 127.0.0.1:2021     # uWSGI 的监听端口 启动程序时所使用的地址和端口，通常在本地运行flask项目，
 chdir           = /home/ubuntu/project/simple-flask # 指向网站目录
 wsgi-file       = /home/ubuntu/project/simple-flask/server.py# python 启动程序文件
@@ -34,19 +35,31 @@ daemonize       = /home/ubuntu/project/simple-flask/log/uwsgi.log
 plugins         = python3
 ```
 
-
-
 uwsgi 启动
 ```bash
 # 启动
-uwsgi --ini uwsgi.ini &
+uwsgi --ini uwsgi.ini
+
 # 重启
 uwsgi --reload uwsgi.pid
+
 # 停止
 uwsgi --stop uwsgi.pid
-# 查看 pid
+
+# 重启uWSGI服务器
+$ sudo service uwsgi restart
+
+# 查看所有uWSGI进程
 ps aux | grep uwsgi
+
+# 停止所有uWSGI进程
+$ sudo pkill -f uwsgi -9
 ```
+
+教程：
+- [uWSGI的安装及配置详解](https://pythondjango.cn/python/tools/6-uwsgi-configuration/)
+
+
 
 # nginx
 > 全局配置文件 `/etc/nginx/nginx.conf`
@@ -62,15 +75,15 @@ server {
     server_name 1.116.121.100;  # 监听ip 换成服务器公网IP
     charset utf-8;
 
-    access_log  /home/ubuntu/project/simple-flask/log/access.log;
-    error_log  /home/ubuntu/project/simple-flask/log/error.log;
+    access_log /home/ubuntu/project/simple-flask/log/access.log;
+    error_log /home/ubuntu/project/simple-flask/log/error.log;
 
     location / {  
-        include uwsgi_params;       # 导入uwsgi配置     
-        uwsgi_pass 127.0.0.1:2021;  # 转发端口，需要和uwsgi配置当中的监听端口一致
-        uwsgi_param UWSGI_PYTHON python3;  # Python解释器所在的路径，如果有虚拟环境可将路径设置为虚拟环境
+        include /etc/nginx/uwsgi_params;        # 导入uwsgi配置     
+        uwsgi_pass 127.0.0.1:2021;              # 转发端口，需要和uwsgi配置当中的监听端口一致
+        uwsgi_param UWSGI_PYTHON python3;       # Python解释器所在的路径，如果有虚拟环境可将路径设置为虚拟环境
         uwsgi_param UWSGI_CHDIR /home/ubuntu/project/simple-flask;  # 项目根目录
-        uwsgi_param UWSGI_SCRIPT server:app;   # 项目的主程序
+        uwsgi_param UWSGI_SCRIPT server:app;    # 项目的主程序
         }
 
     location /media  {
