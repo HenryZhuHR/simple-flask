@@ -33,14 +33,15 @@ daemonize       = uwsgi.log
 
 
 
+
 uwsgi启动/停止
 ```bash
 # 启动
 /usr/bin/uwsgi --ini uwsgi.ini&
 # 重启
-uwsgi --reload uwsgi.pid
+uwsgi --reload log/uwsgi.pid
 # 停止
-uwsgi --stop uwsgi.pid
+uwsgi --stop log/uwsgi.pid
 ```
 
 # nginx
@@ -61,7 +62,7 @@ sudo vim /etc/nginx/sites-enabled/flask.config
 ```
 server {
     listen 80;
-    server_name 192.168.1.161;  # 监听ip 换成服务器公网IP
+    server_name 1.116.121.100;  # 监听ip 换成服务器公网IP:wq
 
     access_log  /home/ubuntu/project/simple-flask/log/nginx/access.log;
     error_log  /home/ubuntu/project/simple-flask/log/nginx/error.log;
@@ -124,21 +125,27 @@ sudo nginx -s reload
 sudo pkill -9 nginx
 ```
 
-
-查看nginx接入日志 
+检查配置
+```bash
+sudo nginx -t
 ```
+
+
+# Debug
+查看 uwsgi 接入日志 
+```bash
+cat log/uwsgi.log
+tail -f log/uwsgi.log
+```
+
+查看 nginx 接入日志 
+```bash
+cat log/access.log
 tail -f /var/log/nginx/access.log
 ```
 
-查看nginx错误日志 
-```
+查看 nginx 错误日志 
+```bash
+cat log/error.log
 tail -f /var/log/nginx/error.log
 ```
-
-
-检查配置
-```
-nginx -t
-```
-
-
