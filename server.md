@@ -7,6 +7,7 @@ scp -r ../simple-flask ubuntu@1.116.121.100:~/project/
 ```
 ```bash
 sudo apt install -y uwsgi nginx
+sudo apt install uwsgi-plugin-python3
 ```
 
 
@@ -15,9 +16,9 @@ sudo apt install -y uwsgi nginx
 配置文件
 ```ini
 [uwsgi]
-# uid=www-data # Ubuntu系统下默认用户名
-# gid=www-data # Ubuntu系统下默认用户组
-socket            = 127.0.0.1:2021     # uWSGI 的监听端口 启动程序时所使用的地址和端口，通常在本地运行flask项目，
+uid             = ubuntu
+gid             = ubuntu
+socket          = 127.0.0.1:2021 # uWSGI 的监听端口 启动程序时所使用的地址和端口，通常在本地运行flask项目，
 chdir           = /home/ubuntu/project/simple-flask # 指向网站目录
 wsgi-file       = /home/ubuntu/project/simple-flask/server.py# python 启动程序文件
 callable        = app# python 程序内用以启动的 application 变量名
@@ -47,13 +48,16 @@ uwsgi --reload uwsgi.pid
 uwsgi --stop uwsgi.pid
 
 # 重启uWSGI服务器
-$ sudo service uwsgi restart
+sudo service uwsgi restart
 
 # 查看所有uWSGI进程
 ps aux | grep uwsgi
 
+# 查看是否启动
+netstat -anp | grep 2021
+
 # 停止所有uWSGI进程
-$ sudo pkill -f uwsgi -9
+sudo pkill -f uwsgi -9
 ```
 
 教程：
@@ -126,10 +130,3 @@ sudo service nginx restart
 ps -ef|grep nginx
 sudo pkill -9 nginx
 ```
-
-检查配置
-```bash
-sudo nginx -t
-```
-
-
