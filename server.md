@@ -14,7 +14,7 @@ sudo apt install -y nginx
 
 [uwsgi]
 
-http            = 127.0.0.1:2021     # uWSGI 的监听端口 启动程序时所使用的地址和端口，通常在本地运行flask项目，
+socket            = 127.0.0.1:2021     # uWSGI 的监听端口 启动程序时所使用的地址和端口，通常在本地运行flask项目，
 chdir           = /home/ubuntu/project/simple-flask # 指向网站目录
 wsgi-file       = /home/ubuntu/project/simple-flask/server.py# python 启动程序文件
 callable        = app# python 程序内用以启动的 application 变量名
@@ -28,20 +28,21 @@ master          = true  # 主进程
 stats           = /home/ubuntu/project/simple-flask/log/uwsgi.status
 pidfile         = /home/ubuntu/project/simple-flask/log/uwsgi.pid
 
-daemonize       = uwsgi.log
+daemonize       = /home/ubuntu/project/simple-flask/log/uwsgi.log
+plugins         = python3
 ```
-
 
 
 
 uwsgi启动/停止
 ```bash
 # 启动
-/usr/bin/uwsgi --ini uwsgi.ini&
+uwsgi --ini uwsgi.ini &
 # 重启
-uwsgi --reload log/uwsgi.pid
+uwsgi --reload uwsgi.pid
 # 停止
-uwsgi --stop log/uwsgi.pid
+uwsgi --stop uwsgi.pid
+ps aux | grep uwsgi
 ```
 
 # nginx
@@ -62,17 +63,18 @@ sudo vim /etc/nginx/sites-enabled/flask.config
 ```
 server {
     listen 80;
-    server_name 1.116.121.100;  # 监听ip 换成服务器公网IP:wq
+    server_name 1.116.121.100;
+    charset utf-8;
 
-    access_log  /home/ubuntu/project/simple-flask/log/nginx/access.log;
-    error_log  /home/ubuntu/project/simple-flask/log/nginx/error.log;
+    access_log  /home/ubuntu/project/simple-flask/log/access.log;
+    error_log  /home/ubuntu/project/simple-flask/log/error.log;
 
     location / {  
-        include uwsgi_params;       # 导入uwsgi配置     
-        uwsgi_pass 127.0.0.1:2021;  # 转发端口，需要和uwsgi配置当中的监听端口一致
-        uwsgi_param UWSGI_PYTHON /usr/bin/python3;  # Python解释器所在的路径
-        uwsgi_param UWSGI_CHDIR /home/ubuntu/project/simple-flask;  # 项目根目录
-        uwsgi_param UWSGI_SCRIPT server:app;   # 项目的主程序
+        include /etc/nginx/uwsgi_params;   
+        uwsgi_pass 127.0.0.1:2021;
+        uwsgi_param UWSGI_PYTHON /usr/bin/python3;
+        uwsgi_param UWSGI_CHDIR /home/ubuntu/project/simple-flask;
+        uwsgi_param UWSGI_SCRIPT server:app;
         }
 }
 ```
@@ -116,14 +118,29 @@ nginx启动/停止
 ```bash
 # 启动
 sudo nginx
+sudo nginx -c /etc/nginx/nginx.conf
 # 停止
+sudo service nginx stop
 sudo nginx -s stop
 sudo nginx -s quit
 # 重启加载配置
 sudo nginx -s reload
 
+sudo service nginx restart
 sudo pkill -9 nginx
 ```
+
+
+查看nginx接入日志 
+```
+tail -f /var/log/nginx/access.log
+```
+
+查看nginx错误日志 
+```
+tail -f /var/log/nginx/error.log
+```
+
 
 检查配置
 ```bash
@@ -131,21 +148,3 @@ sudo nginx -t
 ```
 
 
-# Debug
-查看 uwsgi 接入日志 
-```bash
-cat log/uwsgi.log
-tail -f log/uwsgi.log
-```
-
-查看 nginx 接入日志 
-```bash
-cat log/access.log
-tail -f /var/log/nginx/access.log
-```
-
-查看 nginx 错误日志 
-```bash
-cat log/error.log
-tail -f /var/log/nginx/error.log
-```

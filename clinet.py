@@ -4,8 +4,8 @@ import requests
 
 import base64
 
-URL_BASE='http://1.116.121.100'
-# URL_BASE='http://127.0.0.1:2021'
+# URL_BASE='http://1.116.121.100'
+URL_BASE='http://127.0.0.1:2021'
 
 
 
@@ -24,7 +24,7 @@ else:
         # print(response.json())
 print()
 
-data['topk'] = 5
+data['topk'] = 10
 url = '%s/robust_model/'%URL_BASE
 response = requests.post(url, data=json.dumps(data))
 print(response)
