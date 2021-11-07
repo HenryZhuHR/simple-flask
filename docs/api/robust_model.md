@@ -1,6 +1,6 @@
 
 # 鲁棒模型
-将图片推理并且返回推理预测结果。在调用之前，需要先调用[选择图片](./select_image.md)或者[上传图片](upload_image.md)
+将图片推理并且返回推理预测结果。在调用之前，需要先调用[选择图片](api/select_image.md)或者[上传图片](api/upload_image.md)
 ## 1.接口描述
 
 
@@ -11,7 +11,7 @@
 
 ## 2.输入参数
 
-无输入，但确保在调用之前，已经[选择图片](./select_image.md)或者[上传图片](upload_image.md)
+无输入，但确保在调用之前，已经[选择图片](api/select_image.md)或者[上传图片](api/upload_image.md)
 
 
 ## 3.输出参数
