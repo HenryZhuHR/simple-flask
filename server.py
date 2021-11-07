@@ -17,7 +17,7 @@ app.debug = True
 
 _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
     'Error': {
-        'Code': 'SelectImage.NotParameterGet',
+        'Code': 'NotParameterGet',
                 'Message': 'Invalid request parameter got, check parameter'
     }
 })
@@ -53,7 +53,7 @@ def select_image():
     if 'file_name' not in data_json:
         return json.dumps({
             'Error': {
-                'Code': 'SelectImage.InvalidParameterValue',
+                'Code': 'SelectImage.LossParameter',
                 'Message': 'parameter "file_name" not found in request'
             }
         })
@@ -94,7 +94,7 @@ def upload_image():
     if 'image' not in data_json:
         return json.dumps({
             'Error': {
-                'Code': 'UploadImage.InvalidParameterValue',
+                'Code': 'UploadImage.LossParameter',
                 'Message': 'parameter "image" not found in request'
             }
         })
@@ -113,7 +113,7 @@ def upload_image():
         return json.dumps({
             'Error': {
                 'Code': 'UploadImage.DecodeImageError',
-                'Message': 'parameter "image" not found in request'
+                'Message': 'decode image error'
             }
         })
 
