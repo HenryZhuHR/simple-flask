@@ -37,18 +37,17 @@ else:
     image_data = base64.b64decode(response.json()['image'])
     with open('getImage.jpg', 'wb') as f_img:
         f_img.write(image_data)
-        print(' [INFO] Image get from server write to getImage.jpg')
 print()
 
 
 # Test upload_image
-# url = '%s/upload_image' % URL_BASE
-# image_path='images/adv_100601.png'
-# data = {
-#     'image': base64.b64encode(open(image_path, 'rb').read()).decode()
-# }
-# response = requests.post(url, data=json.dumps(data))
-# pprint(response.json())
+url = '%s/upload_image' % URL_BASE
+image_path='images/adv_100601.png'
+data = {
+    'image': base64.b64encode(open(image_path, 'rb').read()).decode()
+}
+response = requests.post(url, data=json.dumps(data))
+pprint(response.json())
 
 
 

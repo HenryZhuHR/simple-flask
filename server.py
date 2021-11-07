@@ -1,4 +1,4 @@
-from api_robustModel import RobustResnet34
+from api.api_robustModel import RobustResnet34
 from flask import Flask, request
 import os
 import io
@@ -26,14 +26,14 @@ SELECT_IMAGE = None
 
 
 ROBUST_MODEL = None  # for robust_model()
-ROBUST_MODEL_PATH = 'api_robustModel/models/at_recon~lr=1e-4-best.pt'
+ROBUST_MODEL_PATH = 'api/api_robustModel/models/at_recon~lr=1e-4-best.pt'
 TRANSFORM = transforms.Compose(  # for robust_model()
     [transforms.Resize(224), transforms.ToTensor()])
 
 
 @app.route("/")
 def hello():
-    return '<h1 style="color:blue">Hello...!</h1>'
+    return '<h1 style="color:yellow">Hello...!</h1>'
 
 
 @app.route('/select_image', methods=['post'])
@@ -59,7 +59,7 @@ def select_image():
         })
 
     global SELECT_IMAGE
-    image_file = os.path.join('images', data_json['file_name'])
+    image_file = os.path.join('source/images', data_json['file_name'])
     app.logger.info('/select_image :select image %s in %s' %
                     (data_json['file_name'], image_file))
     try:
@@ -104,7 +104,7 @@ def upload_image():
     try:
         image_data = base64.b64decode(data_json['image'])
         SELECT_IMAGE = image_data
-        with open('default.jpg', 'wb') as f_img:
+        with open('source/default.jpg', 'wb') as f_img:
             f_img.write(SELECT_IMAGE)
         return json.dumps({
             'statement': 'Success'
@@ -137,7 +137,7 @@ def robust_model():
     try:
         image: numpy.ndarray = cv2.cvtColor(
             np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
-        cv2.imwrite('save.jpg', image)
+        # cv2.imwrite('source/save.jpg', image)
     except:
         return json.dumps({
             'Error': {
