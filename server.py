@@ -1,9 +1,12 @@
+from api_robustModel import RobustResnet34
 from flask import Flask, request
 import os
+import io
 import json
 import base64
 import cv2
 import numpy
+import numpy as np
 from PIL import Image
 from torch import Tensor
 from torchvision import transforms
@@ -14,12 +17,18 @@ app.debug = True
 
 _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
     'Error': {
-        'Code': 'SelectImage.InvalidRequestParameter',
-                'Message': 'Invalid request parameter, check parameter'
+        'Code': 'SelectImage.NotParameterGet',
+                'Message': 'Invalid request parameter got, check parameter'
     }
 })
 
-SELECT_IMAGE_PATH = 'images/adv_100601.png'
+SELECT_IMAGE = None
+
+
+ROBUST_MODEL = None  # for robust_model()
+ROBUST_MODEL_PATH = 'api_robustModel/models/at_recon~lr=1e-4-best.pt'
+TRANSFORM = transforms.Compose(  # for robust_model()
+    [transforms.Resize(224), transforms.ToTensor()])
 
 
 @app.route("/")
@@ -41,7 +50,6 @@ def select_image():
     data_get = request.data.decode('utf-8')
     data_json = json.loads(data_get)
 
-
     if 'file_name' not in data_json:
         return json.dumps({
             'Error': {
@@ -49,17 +57,17 @@ def select_image():
                 'Message': 'parameter "file_name" not found in request'
             }
         })
-    app.logger.info(data_json['file_name'])
-    
-    global SELECT_IMAGE_PATH
-    SELECT_IMAGE_PATH=os.path.join('images',data_json['file_name'])
-    app.logger.info(SELECT_IMAGE_PATH)
-    app.logger.info('select image %s in %s'%(data_json['file_name'],SELECT_IMAGE_PATH))
+
+    global SELECT_IMAGE
+    image_file = os.path.join('images', data_json['file_name'])
+    app.logger.info('/select_image :select image %s in %s' %
+                    (data_json['file_name'], image_file))
     try:
-        
-        with open(SELECT_IMAGE_PATH, 'rb') as f:
-            image = base64.b64encode(f.read()).decode()
-            
+
+        with open(image_file, 'rb') as f:
+            SELECT_IMAGE = f.read()
+            image = base64.b64encode(SELECT_IMAGE).decode()
+
         return json.dumps({
             'image': image
         })
@@ -71,71 +79,104 @@ def select_image():
             }
         })
 
-ROBUST_MODEL=None
-TRANSFORM = transforms.Compose([transforms.Resize(224), transforms.ToTensor()])
-from api_robustModel import RobustResnet34
-@app.route('/robust_model', methods=['post'])
-def robust_model():
-    app.logger.info("start /robust_model")
+
+@app.route('/upload_image', methods=['post'])
+def upload_image():
     """
         Parameter
         ---
-            - `file_name` (str)
+            - `image` (base64)
+    """
+    if not request.data:  # check if valid data
+        return _RETURN_INVALID_REQUEST_PARAMETER
+    # parase paramter
+    data_json = json.loads(request.data.decode('utf-8'))
+    if 'image' not in data_json:
+        return json.dumps({
+            'Error': {
+                'Code': 'UploadImage.InvalidParameterValue',
+                'Message': 'parameter "image" not found in request'
+            }
+        })
+
+    global SELECT_IMAGE
+
+    try:
+        image_data = base64.b64decode(data_json['image'])
+        SELECT_IMAGE = image_data
+        with open('default.jpg', 'wb') as f_img:
+            f_img.write(SELECT_IMAGE)
+        return json.dumps({
+            'statement': 'Success'
+        })
+    except:
+        return json.dumps({
+            'Error': {
+                'Code': 'UploadImage.DecodeImageError',
+                'Message': 'parameter "image" not found in request'
+            }
+        })
+
+
+@app.route('/robust_model', methods=['post'])
+def robust_model():
+    """
+        Parameter
+        ---
     """
     if not request.data:  # check if valid data
         return _RETURN_INVALID_REQUEST_PARAMETER
 
     # parase paramter
-    data_get = request.data.decode('utf-8')
-    data_json = json.loads(data_get)
+    data_json = json.loads(request.data.decode('utf-8'))
 
-    
-    global SELECT_IMAGE_PATH
-    if 'file_name' in data_json:
-        SELECT_IMAGE_PATH=os.path.join('images',data_json['file_name'])
-        app.logger.info("select image: %s"%SELECT_IMAGE_PATH)
-    else:  
-        app.logger.warning('use default image: %s'%SELECT_IMAGE_PATH)
-    
+    global SELECT_IMAGE
+    global ROBUST_MODEL
+    global TRANSFORM
 
+    try:
+        image: numpy.ndarray = cv2.cvtColor(
+            np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
+        cv2.imwrite('save.jpg', image)
+    except:
+        return json.dumps({
+            'Error': {
+                'Code': 'RobustModel.NotImage',
+                'Message': 'not select or upload image'
+            }
+        })
 
-    image: numpy.ndarray = cv2.imread(SELECT_IMAGE_PATH)
     if image.shape[2] != 3:
         image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
     else:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
     image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
-    
-    
+
     try:
-        ROBUST_MODEL=RobustResnet34(model_weight_path='api_robustModel/models/at_recon~lr=1e-4-best.pt', device='cpu')
+        app.logger.info('Robust Model path: %s'%ROBUST_MODEL_PATH)
+        ROBUST_MODEL = RobustResnet34(
+            model_weight_path=ROBUST_MODEL_PATH, 
+            device='cpu')
     except:
-        app.logger.error('fail to load model: %s'%ROBUST_MODEL)
         return json.dumps({
             'Error': {
                 'Code': 'RobustModel.FileNotFound',
                 'Message': 'error in load model'
             }
-        })        
+        })
     else:
-        app.logger.info('successfully load model: %s'%ROBUST_MODEL)
-    
-    topk=10
+        app.logger.info('successfully load model: %s' % ROBUST_MODEL)
+
+    topk = 10
     prob_list, index_list, name_list = ROBUST_MODEL.top_k(image_tensor, k=topk)
 
-    predict=dict()
-    for i in range(topk):
-        predict[name_list[i]]=prob_list[i]
-    with open(SELECT_IMAGE_PATH, 'rb') as f:
-        image = base64.b64encode(f.read()).decode()
-            
     return json.dumps({
-            'image':image,
-            'predict':predict
-        })
+        'image': base64.b64encode(SELECT_IMAGE).decode(),
+        'predict': {name_list[i]: prob_list[i] for i in range(topk)}
+    })
 
 
 if __name__ == '__main__':
     # app.run(host='192.168.1.141', port=2021)
-    app.debug = True
     app.run(host='127.0.0.1', port=2021)

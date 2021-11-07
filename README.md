@@ -47,6 +47,7 @@
 
 **输入示例**
 ```curl
+POST /select_image HTTP/1.1
 {
     "file_name":"./image.jpg"
 }
