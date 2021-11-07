@@ -59,7 +59,7 @@ def select_image():
         })
 
     global SELECT_IMAGE
-    image_file = os.path.join('source/images', data_json['file_name'])
+    image_file = os.path.join('source','images', data_json['file_name'])
     app.logger.info('/select_image :select image %s in %s' %
                     (data_json['file_name'], image_file))
     try:

@@ -3,7 +3,7 @@ import json
 import torch
 from torch import nn
 from torch import Tensor
-from api_robustModel.resnet34 import ResNet34
+from .resnet34 import ResNet34
 
 DEFAULT_MODEL_PATH = os.path.join(
     os.path.split(os.path.realpath(__file__))[0],

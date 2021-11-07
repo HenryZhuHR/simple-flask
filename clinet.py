@@ -13,7 +13,7 @@ import requests
 import base64
 
 URL_BASE = 'http://1.116.121.100'
-URL_BASE = 'http://127.0.0.1:2021'
+# URL_BASE = 'http://127.0.0.1:2021'
 
 # Test select_image
 url = '%s/select_image' % URL_BASE
@@ -42,7 +42,7 @@ print()
 
 # Test upload_image
 url = '%s/upload_image' % URL_BASE
-image_path='images/adv_100601.png'
+image_path='source/images/adv_100601.png'
 data = {
     'image': base64.b64encode(open(image_path, 'rb').read()).decode()
 }

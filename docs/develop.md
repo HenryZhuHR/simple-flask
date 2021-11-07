@@ -43,6 +43,7 @@ uwsgi 启动
 ```bash
 # 启动
 uwsgi --ini uwsgi.ini
+uwsgi --ini ../uwsgi.ini
 
 # 重启
 uwsgi --reload uwsgi.pid
@@ -123,10 +124,10 @@ sudo nginx -t
 sudo nginx -s reload
 
 # 查看nginx接入日志 
-tail -f /var/log/nginx/access.log
+tail -f log/access.log
 
 # 查看nginx错误日志 
-tail -f /var/log/nginx/error.log
+tail -f log/error.log
 
 
 sudo service nginx restart
