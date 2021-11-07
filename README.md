@@ -1,81 +1,8 @@
 # API 文档
 
-- [API 文档](#api-文档)
-- [服务器地址](#服务器地址)
-- [API 文档](#api-文档-1)
-  - [选择图片](#选择图片)
-  - [上传图片](#上传图片)
-  - [鲁棒模型](#鲁棒模型)
-- [Browser 选择图像](#browser-选择图像)
-- [Server 选择图像](#server-选择图像)
-- [Browser 选择原始模型](#browser-选择原始模型)
-- [Server 选择原始模型](#server-选择原始模型)
-- [Browser 选择鲁棒模型](#browser-选择鲁棒模型)
-- [Server 选择鲁棒模型](#server-选择鲁棒模型)
-- [Browser 重建防御](#browser-重建防御)
-- [Server 重建防御](#server-重建防御)
-- [Browser 对抗检测](#browser-对抗检测)
-- [Server 对抗检测](#server-对抗检测)
-- [Browser 全防御流程](#browser-全防御流程)
-- [Server 全防御流程](#server-全防御流程)
-- [Browser 物理世界平台](#browser-物理世界平台)
-- [Server 物理世界平台](#server-物理世界平台)
+[API 文档](http://henryzhuhr.xyz/simple-flask/)
 
-# 服务器地址
-`http://1.116.121.100`
-
-# API 文档
-
-
-#
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+<!-- 
 # Browser 选择图像
 
 POST 请求
@@ -408,4 +335,4 @@ POST 请求
 
 |             code              | realtimeOutput |
 | :---------------------------: | :------------: |
-| 实时概率输出,10 个小数,和为 1 |
+| 实时概率输出,10 个小数,和为 1 | -->
