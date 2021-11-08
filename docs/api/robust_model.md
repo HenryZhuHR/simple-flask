@@ -26,6 +26,8 @@
 
 **输入示例**
 ```curl
+POST /robust_model HTTP/1.1
+Content-Type: application/json
 ```
 
 **输出示例**

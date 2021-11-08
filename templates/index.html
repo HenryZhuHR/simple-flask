@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>鲁棒人工智能</title>
+    <link rel="stylesheet" href="../static/css/title.css">
+    <link rel="stylesheet" href="../static/css/button.css">
+    <script src="https://libs.baidu.com/jquery/2.1.4/jquery.min.js"></script>
+
+</head>
+
+<body>
+    <div class="header">鲁棒人工智能</div>
+    <div class="body">
+        <div class="menu">
+            <div class="menu-image">
+                <div class="menu-tile">选择/上传图片</div>
+                <!-- <button onclick="select_image()">选择图片</button> -->
+
+                <!-- <button onclick="upload_image()" id="upload_image" >上传图片</button> -->
+                <button onclick="upload_image()">上传图片</button>
+
+                <div class="menu-button">
+                    <input type="file" id="file-uploader" value="none" placeholder="上传图片"
+                        accept="image/png, image/jpg, image/jpeg">
+                </div>
+            </div>
+            <div class="menu-manual_procedure">
+                <div class="menu-tile">手动控制</div>
+                <button onclick="robust_model()">鲁棒模型</button>
+            </div>
+            <div class="menu-auto_procedure">
+                <div class="menu-tile">自动控制</div>
+                <!-- <button onclick="select_image()">选择图片</button> -->
+            </div>
+
+        </div>
+        <div class="display"></div>
+    </div>
+</body>
+
+
+<script src="../static/js/upload_image.js"></script>
+
+
+</html>

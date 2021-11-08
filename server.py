@@ -1,5 +1,5 @@
-from api.api_robustModel import RobustResnet34
 from flask import Flask, request
+from flask import render_template #渲染
 import os
 import io
 import json
@@ -10,6 +10,8 @@ import numpy as np
 from PIL import Image
 from torch import Tensor
 from torchvision import transforms
+from api.api_robustModel import RobustResnet34
+
 
 app = Flask(__name__)
 app.debug = True
@@ -33,7 +35,7 @@ TRANSFORM = transforms.Compose(  # for robust_model()
 
 @app.route("/")
 def hello():
-    return '<h1 style="color:yellow">Hello...!</h1>'
+    return render_template('index.html')
 
 
 @app.route('/select_image', methods=['post'])
