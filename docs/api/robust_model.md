@@ -64,8 +64,6 @@ Content-Type: application/json
 | monitor                  | 屏幕                       |
 | tanker_ship              | 油船                       |
 
-
-
 **错误返回实例**
 ```json
 "Error": {
