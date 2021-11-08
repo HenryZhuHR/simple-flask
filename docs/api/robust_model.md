@@ -49,6 +49,22 @@ Content-Type: application/json
 }
 ```
 
+**字段说明**
+| 字段                     | 名称                       |
+| :----------------------- | :------------------------- |
+| airplane                 | 飞机                       |
+| automobile               | 汽车                       |
+| cargo_ship               | 货船                       |
+| castle                   | 城堡                       |
+| cg_ddg                   | 战舰                       |
+| char                     | 椅子                       |
+| cruise_ship              | 游轮                       |
+| cvn                      | 航母                       |
+| monitor                  | 屏幕                       |
+| tanker_ship              | 油船                       |
+
+
+
 **错误返回实例**
 ```json
 "Error": {
