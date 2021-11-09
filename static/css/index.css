@@ -1,0 +1,57 @@
+.body {
+  display: flex;
+  justify-content: space-between;
+}
+.body .menu {
+  width: 20%;
+}
+.body .display {
+  width: 80%;
+  display: flex;
+  flex-direction: column; /*弹性容器中子元素排列方式*/
+}
+
+/* https://www.jianshu.com/p/5856c4ae91f2 */
+.body .display .result {
+  display: flex;
+  flex-direction: row;
+  align-items: center; /*对齐方式:项目位于容器的中心。*/
+  justify-content: space-around; /*对齐方式:项目位于各行之前、之间、之后都留有空白的容器内*/
+}
+
+.body .display .result img {
+  width: 20%;
+  height: auto;
+}
+.body .display .result .detect-container {
+  width: 20%;
+  height: auto;
+}
+
+@media screen and (max-width: 700px) {
+  /* 1/3屏 iPad pro 1668px/3 */
+
+  .body .display .result {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /*对齐方式:项目位于容器的中心。*/
+    justify-content: space-around; /*对齐方式:项目位于各行之前、之间、之后都留有空白的容器内*/
+  }
+  .reviews-container {
+    width: 80%;
+  }
+}
+
+@media screen and (max-width: 700px) {
+  /* 1/3屏 iPad pro 1668px/3 */
+
+  .body .display .result {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /*对齐方式:项目位于容器的中心。*/
+    justify-content: space-around; /*对齐方式:项目位于各行之前、之间、之后都留有空白的容器内*/
+  }
+  .reviews-container {
+    width: 80%;
+  }
+}

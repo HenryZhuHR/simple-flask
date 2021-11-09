@@ -1,18 +1,29 @@
 
 button {
   font-weight: 500;
-  font-size: 125%;
-  width: 200px;
-  padding: 8px;
-  background-color: #428bca;
-  border-color: #357ebd;
+  font-size: 120%;
+  width: 8rem;
+  padding: 2px;
+  margin-top: 3px;
+  margin-bottom: 3px;
+  background:linear-gradient(rgb(139, 189, 255), rgb(7, 59, 230));
+  box-shadow: 0 3px 3px -5px rgba(112, 173, 242, 0.322),
+    0 2px 5px rgba(151, 209, 236, 0.356);
+  /* border-color: #357ebd; */
   color: #fff;
-  border-radius: 10px; /* future proofing */
-  -moz-border-radius: 10px;
-  -webkit-border-radius: 10px;
-  -khtml-border-radius: 10px; /* for old Konqueror browsers */
+  border-radius: 5px; /* future proofing */
   text-align: center;
-  vertical-align: middle;
-  border: 1px solid transparent;
-  
+  border: 0px;  
 }
+button:hover{
+  box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 0.7);
+  background: #bd3c09;
+  /* width: 100px; */
+}
+
+button:active{
+  box-shadow: 0 3px 10px -5px rgba(0, 0, 0, 0.7);
+  background-color: #0fbd09;
+  /* width: 100px; */
+}
+

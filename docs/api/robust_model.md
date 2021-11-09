@@ -16,11 +16,11 @@
 
 ## 3.输出参数
 
-| 返回参数 | 描述                                |
-| :------- | :---------------------------------- |
-| image    | 输入模型的图片的base64编码          |
-| predict  | 预测的10个结果                      |
-| Error    | 包含错误码`Code`和错误提示`Message` |
+| 返回参数 | 描述                                                            |
+| :------- | :-------------------------------------------------------------- |
+| image    | 输入模型的图片的base64编码，不包含头部 `data:image/png;base64,` |
+| predict  | 预测的10个结果                                                  |
+| Error    | 包含错误码`Code`和错误提示`Message`                             |
 
 ## 4.示例
 
@@ -66,15 +66,15 @@ Content-Type: application/json
 
 
 ## 6.字段说明
-| 字段                     | 名称                       |
-| :----------------------- | :------------------------- |
-| airplane                 | 飞机                       |
-| automobile               | 汽车                       |
-| cargo_ship               | 货船                       |
-| castle                   | 城堡                       |
-| cg_ddg                   | 战舰                       |
-| char                     | 椅子                       |
-| cruise_ship              | 游轮                       |
-| cvn                      | 航母                       |
-| monitor                  | 屏幕                       |
-| tanker_ship              | 油船                       |
+| 字段        | 名称 |
+| :---------- | :--- |
+| airplane    | 飞机 |
+| automobile  | 汽车 |
+| cargo_ship  | 货船 |
+| castle      | 城堡 |
+| cg_ddg      | 战舰 |
+| char        | 椅子 |
+| cruise_ship | 游轮 |
+| cvn         | 航母 |
+| monitor     | 屏幕 |
+| tanker_ship | 油船 |

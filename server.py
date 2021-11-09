@@ -1,5 +1,5 @@
 from flask import Flask, request
-from flask import render_template #渲染
+from flask import render_template  # 渲染
 import os
 import io
 import json
@@ -13,7 +13,10 @@ from torchvision import transforms
 from api.api_robustModel import RobustResnet34
 
 
-app = Flask(__name__)
+app = Flask(__name__,
+            template_folder='templates',
+            static_folder='static',
+            static_url_path='/static')
 app.debug = True
 
 
@@ -61,7 +64,7 @@ def select_image():
         })
 
     global SELECT_IMAGE
-    image_file = os.path.join('source','images', data_json['file_name'])
+    image_file = os.path.join('source', 'images', data_json['file_name'])
     app.logger.info('/select_image :select image %s in %s' %
                     (data_json['file_name'], image_file))
     try:
@@ -156,9 +159,9 @@ def robust_model():
     image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
 
     try:
-        app.logger.info('Robust Model path: %s'%ROBUST_MODEL_PATH)
+        app.logger.info('Robust Model path: %s' % ROBUST_MODEL_PATH)
         ROBUST_MODEL = RobustResnet34(
-            model_weight_path=ROBUST_MODEL_PATH, 
+            model_weight_path=ROBUST_MODEL_PATH,
             device='cpu')
     except:
         return json.dumps({
@@ -180,5 +183,5 @@ def robust_model():
 
 
 if __name__ == '__main__':
-    # app.run(host='192.168.1.141', port=2021)
-    app.run(host='127.0.0.1', port=2021)
+    app.run(host='192.168.1.141', port=2021)
+    # app.run(host='127.0.0.1', port=2021)
