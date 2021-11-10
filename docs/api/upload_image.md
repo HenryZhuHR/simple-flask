@@ -17,7 +17,7 @@
 
 | 返回参数  | 描述                                |
 | :-------- | :---------------------------------- |
-| statement | 上传状态，一般为 `Success`          |
+| status | 上传状态，一般为 `Success`          |
 | Error     | 包含错误码`Code`和错误提示`Message` |
 
 ## 4.示例
@@ -35,7 +35,7 @@ Content-Type: application/json
 **输出示例**
 ```json
 {
-    "statement": "Success"
+    "status": "Success"
 }
 ```
 

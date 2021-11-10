@@ -14,7 +14,7 @@ function upload_image() {
         reader.onload = function (ev) {
             var dataURL = ev.target.result;
             var image_base64 = dataURL.replace(/^data:image\/\w+;base64,/, ""); //去掉base64位头部
-            // console.log('object :>> ', image_base64);
+            console.log('object :>> ', image_base64);
 
             var httpRequest = new XMLHttpRequest();     //第一步：创建需要的对象
             httpRequest.open('POST', '/upload_image', true);    //第二步：打开连接/***发送json格式文件必须设置请求头 ；如下 - */

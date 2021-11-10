@@ -41,9 +41,17 @@ plugins         = python3
 
 uwsgi 启动
 ```bash
+# 停止所有uWSGI进程
+sudo pkill -f uwsgi -9
+# 重启uWSGI服务器
+sudo service uwsgi restart
 # 启动
 uwsgi --ini uwsgi.ini
 uwsgi --ini ../uwsgi.ini
+# 查看所有uWSGI进程
+ps aux | grep uwsgi
+# 查看是否启动
+netstat -anp | grep 2021
 
 # 重启
 uwsgi --reload uwsgi.pid
@@ -51,17 +59,6 @@ uwsgi --reload uwsgi.pid
 # 停止
 uwsgi --stop uwsgi.pid
 
-# 重启uWSGI服务器
-sudo service uwsgi restart
-
-# 查看所有uWSGI进程
-ps aux | grep uwsgi
-
-# 查看是否启动
-netstat -anp | grep 2021
-
-# 停止所有uWSGI进程
-sudo pkill -f uwsgi -9
 ```
 
 教程：

@@ -12,7 +12,7 @@ import requests
 
 import base64
 
-URL_BASE = 'http://1.116.121.100'
+URL_BASE = 'http://1.116.121.100/api'
 # URL_BASE = 'http://127.0.0.1:2021'
 
 # Test select_image

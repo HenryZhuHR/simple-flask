@@ -12,13 +12,14 @@ from torch import Tensor
 from torchvision import transforms
 from api.api_robustModel import RobustResnet34
 
+from flask_cors import CORS
 
 app = Flask(__name__,
             template_folder='templates',
             static_folder='static',
             static_url_path='/static')
 app.debug = True
-
+CORS(app,resources={r"/api/*": {"origins":"*"}})
 
 _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
     'Error': {
@@ -38,10 +39,11 @@ TRANSFORM = transforms.Compose(  # for robust_model()
 
 @app.route("/")
 def hello():
-    return render_template('index.html')
+    # return render_template('index.html')
+    return 'hello-1110'
 
 
-@app.route('/select_image', methods=['post'])
+@app.route('/api/select_image', methods=['post'])
 def select_image():
     """
         Parameter
@@ -85,7 +87,7 @@ def select_image():
         })
 
 
-@app.route('/upload_image', methods=['post'])
+@app.route('/api/upload_image', methods=['post'])
 def upload_image():
     """
         Parameter
@@ -112,7 +114,7 @@ def upload_image():
         with open('source/default.jpg', 'wb') as f_img:
             f_img.write(SELECT_IMAGE)
         return json.dumps({
-            'statement': 'Success'
+            'status': 'Success'
         })
     except:
         return json.dumps({
@@ -123,7 +125,7 @@ def upload_image():
         })
 
 
-@app.route('/robust_model', methods=['post'])
+@app.route('/api/robust_model', methods=['post'])
 def robust_model():
     """
         Parameter
@@ -181,7 +183,12 @@ def robust_model():
         'predict': {name_list[i]: prob_list[i] for i in range(topk)}
     })
 
+@app.route('/api/reconstructed_model', methods=['post'])
+def reconstructed_model():
+    pass
+
 
 if __name__ == '__main__':
-    app.run(host='192.168.1.141', port=2021)
-    # app.run(host='127.0.0.1', port=2021)
+    
+    # app.run(host='192.168.1.141', port=2021)
+    app.run(host='127.0.0.1', port=2021)

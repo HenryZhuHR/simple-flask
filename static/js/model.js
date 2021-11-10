@@ -24,7 +24,7 @@ function robust_model() {
                 console.log("Error");
             }
             else {
-                document.getElementById("original_image").setAttribute("src", "data:image/png;base64," + json_result["image"]);
+                document.getElementById("original_image").setAttribute("src", "data:image/png;base64," + json_result["image"]);                
                 setProgress("originalImage-robustModel", json_result["predict"]);
 
             }
