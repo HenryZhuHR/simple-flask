@@ -4,5 +4,4 @@
 
 # API 文档
 - [上传图片](api/upload_image.md)
-- [选择图片](api/select_image.md)
 - [鲁棒模型](api/robust_model.md)

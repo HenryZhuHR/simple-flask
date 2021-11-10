@@ -5,7 +5,7 @@
 
 
 
-接口地址：`/robust_model`
+接口地址：`/api/robust_model`
 
 请求方法：POST
 
@@ -26,7 +26,7 @@
 
 **输入示例**
 ```curl
-POST /robust_model HTTP/1.1
+POST /api/robust_model HTTP/1.1
 Content-Type: application/json
 ```
 

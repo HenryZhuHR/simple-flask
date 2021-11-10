@@ -10,9 +10,12 @@ import numpy as np
 from PIL import Image
 from torch import Tensor
 from torchvision import transforms
-from api.api_robustModel import RobustResnet34
+
 
 from flask_cors import CORS
+
+from api.api_robustModel import RobustResnet34
+from api.api_recon.recon import Recon
 
 app = Flask(__name__,
             template_folder='templates',
@@ -29,6 +32,7 @@ _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
 })
 
 SELECT_IMAGE = None
+RECON_IMAGE_TENSOR=None
 
 
 ROBUST_MODEL = None  # for robust_model()
@@ -41,50 +45,6 @@ TRANSFORM = transforms.Compose(  # for robust_model()
 def hello():
     # return render_template('index.html')
     return 'hello-1110'
-
-
-@app.route('/api/select_image', methods=['post'])
-def select_image():
-    """
-        Parameter
-        ---
-            - `file_name` (str)
-    """
-    if not request.data:  # check if valid data
-        return _RETURN_INVALID_REQUEST_PARAMETER
-
-    # parase paramter
-    data_get = request.data.decode('utf-8')
-    data_json = json.loads(data_get)
-
-    if 'file_name' not in data_json:
-        return json.dumps({
-            'Error': {
-                'Code': 'SelectImage.LossParameter',
-                'Message': 'parameter "file_name" not found in request'
-            }
-        })
-
-    global SELECT_IMAGE
-    image_file = os.path.join('source', 'images', data_json['file_name'])
-    app.logger.info('/select_image :select image %s in %s' %
-                    (data_json['file_name'], image_file))
-    try:
-
-        with open(image_file, 'rb') as f:
-            SELECT_IMAGE = f.read()
-            image = base64.b64encode(SELECT_IMAGE).decode()
-
-        return json.dumps({
-            'image': image
-        })
-    except:
-        return json.dumps({
-            'Error': {
-                'Code': 'SelectImage.FileNotFound',
-                'Message': 'request image file %s not found' % data_json['file_name']
-            }
-        })
 
 
 @app.route('/api/upload_image', methods=['post'])
@@ -131,12 +91,6 @@ def robust_model():
         Parameter
         ---
     """
-    if not request.data:  # check if valid data
-        return _RETURN_INVALID_REQUEST_PARAMETER
-
-    # parase paramter
-    data_json = json.loads(request.data.decode('utf-8'))
-
     global SELECT_IMAGE
     global ROBUST_MODEL
     global TRANSFORM
@@ -185,7 +139,52 @@ def robust_model():
 
 @app.route('/api/reconstructed_model', methods=['post'])
 def reconstructed_model():
-    pass
+    """
+        Parameter
+        ---
+    """
+    global RECON_IMAGE_TENSOR
+    recon_model = Recon(model_path='./api/api_recon/recon_model.pt', device='cpu')
+
+    try:
+        image: numpy.ndarray = cv2.cvtColor(
+            np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
+        # cv2.imwrite('source/save.jpg', image)
+    except:
+        return json.dumps({
+            'Error': {
+                'Code': 'RobustModel.NotImage',
+                'Message': 'not select or upload image'
+            }
+        })
+    
+    if image.shape[2] != 3:
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    else:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
+    image_recon:Tensor=recon_model.recon(image_in=image_tensor)    
+    RECON_IMAGE_TENSOR=image_recon
+
+    image_recon_np:numpy.ndarray=image_recon.detach().numpy()*255
+    image_recon_np=np.squeeze(image_recon_np)
+    image_recon_np=np.transpose(image_recon_np,(1,2,0))
+    image_recon_np=cv2.cvtColor(image_recon_np,cv2.COLOR_RGB2BGR)
+
+    # image_base64 = base64.b64encode(image_recon_np).decode()
+
+    # with open("static/image_recon.jpg", 'w') as f:        
+    #     f.write(base64.b64encode(image_recon_np).decode())
+
+    cv2.imwrite("static/image_recon.jpg",image_recon_np)
+
+    with open("static/image_recon.jpg", 'rb') as f:   
+        image_base64=base64.b64encode(f.read()).decode()
+    
+    return json.dumps({
+        "image":image_base64
+    })
 
 
 if __name__ == '__main__':

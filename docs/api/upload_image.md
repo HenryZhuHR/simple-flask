@@ -3,7 +3,7 @@
 
 ## 1.接口描述
 
-接口地址：`/upload_image`
+接口地址：`/api/upload_image`
 
 请求方法：POST
 
@@ -24,7 +24,7 @@
 
 **输入示例**
 ```curl
-POST /upload_image HTTP/1.1
+POST /api/upload_image HTTP/1.1
 Content-Type: application/json
 
 {

@@ -28,7 +28,7 @@
                 <div class="menu-tile">手动控制</div>
                 <button onclick="">原始模型</button>
                 <button onclick="robust_model()">鲁棒模型</button>
-                <button onclick="">重建防御</button>
+                <button onclick="reconstructed_model()">重建防御</button>
                 <button onclick="">对抗检测</button>
             </div>
             <div class="menu-auto_procedure">
@@ -202,7 +202,7 @@
                 </div>
             </div>
             <div class="result" id="reconstructed">
-                <img id="original_image" alt="重建样本" src="../static/default.png">
+                <img id="reconstructed_image" alt="重建样本" src="../static/default.png">
                 <div class="detect-container"></div>
                 <div class="reviews-container" id="reconstructedImage-originalModel">
                     <div class="reviews-container-title"><span>原始模型输出</span></div>
