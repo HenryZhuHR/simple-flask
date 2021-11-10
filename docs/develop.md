@@ -7,6 +7,8 @@
 # Update
 ```bash
 scp -r ../simple-flask ubuntu@1.116.121.100:~/project/
+scp -r ./api ubuntu@1.116.121.100:~/project/simple-flask
+scp ./server.py ubuntu@1.116.121.100:~/project/simple-flask
 ```
 ```bash
 sudo apt install -y uwsgi nginx
