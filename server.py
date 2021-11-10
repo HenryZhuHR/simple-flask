@@ -255,8 +255,7 @@ def adversarial_detect():
         Parameter
         ---
     """
-    global RECON_IMAGE_TENSOR
-
+    global SELECT_IMAGE
     try:
         image: numpy.ndarray = cv2.cvtColor(
             np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
