@@ -1,5 +1,5 @@
 
-# 鲁棒模型
+# 重建防御
 将图片推理并且返回推理预测结果。在调用之前，需要先调用[选择图片](api/select_image.md)或者[上传图片](api/upload_image.md)
 ## 1.接口描述
 
@@ -39,14 +39,14 @@ Content-Type: application/json
 **错误返回实例**
 ```json
 "Error": {
-    "Code": "SelectImage.FileNotFound",
-    "Message": "request image file adv_101802.png not found"
+    "Code": "ReconstructedModel.ModelError",
+    "Message": "error in load model"
 }
 ```
 
 ## 5.错误码
-| 错误码                   | 描述                       |
-| :----------------------- | :------------------------- |
-| NotParameterGet          | 参数值错误或未获取参数值。 |
-| RobustModel.FileNotFound | 模型加载失败。             |
+| 错误码                     | 描述                       |
+| :------------------------- | :------------------------- |
+| ReconstructedModel.ModelError | 模型加载失败。             |
+| ReconstructedModel.NotImage | 未选择或者未上传图片。             |
 

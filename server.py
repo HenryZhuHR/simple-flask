@@ -37,11 +37,15 @@ SELECT_IMAGE = None
 RECON_IMAGE_TENSOR = None
 
 
-ROBUST_MODEL = None  # for robust_model()
-ROBUST_MODEL_PATH = 'api/api_robustModel/models/at_recon~lr=1e-4-best.pt'
-ORIGINAL_MODEL = None  # for original_model()
 ORIGINAL_MODEL_PATH = 'api/api_originalModel/models/resnet34.pt'
-RECON_MODEL = None
+ORIGINAL_MODEL = OriginalModel(model_weight_path=ORIGINAL_MODEL_PATH,
+                               device='cpu')
+ROBUST_MODEL_PATH = 'api/api_robustModel/models/at_recon~lr=1e-4-best.pt'
+ROBUST_MODEL = RobustResnet34(model_weight_path=ROBUST_MODEL_PATH,
+                              device='cpu')
+RECON_MODEL_PATH = './api/api_recon/recon_model.pt'
+RECON_MODEL = Recon(
+    model_path=RECON_MODEL_PATH, device='cpu')
 TRANSFORM = transforms.Compose(
     [transforms.Resize(224), transforms.ToTensor()])
 
@@ -133,7 +137,8 @@ def original_model():
                 }
             })
         else:
-            app.logger.info('successfully load model: %s' % ORIGINAL_MODEL_PATH)
+            app.logger.info('successfully load model: %s' %
+                            ORIGINAL_MODEL_PATH)
 
     topk = 10
     app.logger.info(ORIGINAL_MODEL)
@@ -184,7 +189,7 @@ def robust_model():
         except:
             return json.dumps({
                 'Error': {
-                    'Code': 'RobustModel.FileNotFound',
+                    'Code': 'RobustModel.ModelError',
                     'Message': 'error in load model'
                 }
             })
@@ -207,11 +212,24 @@ def reconstructed_model():
         ---
     """
     global RECON_IMAGE_TENSOR
+    global RECON_MODEL_PATH
     global RECON_MODEL
-    if RECON_MODEL is None:
-        RECON_MODEL = Recon(
-            model_path='./api/api_recon/recon_model.pt', device='cpu')
 
+
+    if RECON_MODEL is None:
+        try:
+            app.logger.info('recon Model path: %s' % RECON_MODEL_PATH)
+            RECON_MODEL = Recon(model_path=RECON_MODEL_PATH, device='cpu')
+        except:
+            return json.dumps({
+                'Error': {
+                    'Code': 'ReconstructedModel.ModelError',
+                    'Message': 'error in load model'
+                }
+            })
+        else:
+            app.logger.info('successfully load model: %s' % RECON_MODEL_PATH)
+        
 
     try:
         image: numpy.ndarray = cv2.cvtColor(
@@ -220,7 +238,7 @@ def reconstructed_model():
     except:
         return json.dumps({
             'Error': {
-                'Code': 'RobustModel.NotImage',
+                'Code': 'ReconstructedModel.NotImage',
                 'Message': 'not select or upload image'
             }
         })
@@ -263,7 +281,7 @@ def adversarial_detect():
     except:
         return json.dumps({
             'Error': {
-                'Code': 'RobustModel.NotImage',
+                'Code': 'AdversarialDetect.NotImage',
                 'Message': 'not select or upload image'
             }
         })

@@ -42,8 +42,8 @@ Content-Type: application/json
 **错误返回实例**
 ```json
 "Error": {
-    "Code": "SelectImage.FileNotFound",
-    "Message": "request image file adv_101802.png not found"
+    "Code": "UploadImage.LossParameter",
+    "Message": "parameter "image" not found in request"
 }
 ```
 

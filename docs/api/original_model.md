@@ -1,11 +1,11 @@
 
-# 鲁棒模型
+# 原始模型
 将图片推理并且返回推理预测结果。在调用之前，需要先调用[选择图片](api/select_image.md)或者[上传图片](api/upload_image.md)
 ## 1.接口描述
 
 
 
-接口地址：`/api/robust_model`
+接口地址：`/api/original_model`
 
 请求方法：POST
 
@@ -26,7 +26,7 @@
 
 **输入示例**
 ```curl
-POST /api/robust_model HTTP/1.1
+POST /api/original_model HTTP/1.1
 Content-Type: application/json
 ```
 
@@ -67,7 +67,7 @@ Content-Type: application/json
 **错误返回实例**
 ```json
 "Error": {
-    "Code": "RobustModel.NotImage",
+    "Code": "OriginalModel.NotImage",
     "Message": "not select or upload image"
 }
 ```
@@ -75,6 +75,6 @@ Content-Type: application/json
 ## 5.错误码
 | 错误码                   | 描述                       |
 | :----------------------- | :------------------------- |
-| RobustModel.NotImage | 未选择或者未上传图片             |
-| RobustModel.ModelError | 模型加载失败。             |
+| OriginalModel.NotImage | 未选择或者未上传图片             |
+| OriginalModel.ModelError | 模型加载失败。             |
 
