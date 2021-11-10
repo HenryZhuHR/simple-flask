@@ -15,14 +15,16 @@ from torchvision import transforms
 from flask_cors import CORS
 
 from api.api_robustModel import RobustResnet34
+from api.api_originalModel import OriginalModel
 from api.api_recon.recon import Recon
+from api.api_detect.detect import Detect
 
 app = Flask(__name__,
             template_folder='templates',
             static_folder='static',
             static_url_path='/static')
 app.debug = True
-CORS(app,resources={r"/api/*": {"origins":"*"}})
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
     'Error': {
@@ -32,12 +34,15 @@ _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
 })
 
 SELECT_IMAGE = None
-RECON_IMAGE_TENSOR=None
+RECON_IMAGE_TENSOR = None
 
 
 ROBUST_MODEL = None  # for robust_model()
 ROBUST_MODEL_PATH = 'api/api_robustModel/models/at_recon~lr=1e-4-best.pt'
-TRANSFORM = transforms.Compose(  # for robust_model()
+ORIGINAL_MODEL = None  # for original_model()
+ORIGINAL_MODEL_PATH = 'api/api_originalModel/models/resnet34.pt'
+RECON_MODEL = None
+TRANSFORM = transforms.Compose(
     [transforms.Resize(224), transforms.ToTensor()])
 
 
@@ -85,6 +90,62 @@ def upload_image():
         })
 
 
+@app.route('/api/original_model', methods=['post'])
+def original_model():
+    """
+        Parameter
+        ---
+    """
+    global SELECT_IMAGE
+    global ORIGINAL_MODEL
+    global TRANSFORM
+
+    try:
+        image: numpy.ndarray = cv2.cvtColor(
+            np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
+        # cv2.imwrite('source/save.jpg', image)
+    except:
+        return json.dumps({
+            'Error': {
+                'Code': 'OriginalModel.NotImage',
+                'Message': 'not select or upload image'
+            }
+        })
+
+    if image.shape[2] != 3:
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    else:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
+
+    if ORIGINAL_MODEL is None:
+        try:
+            app.logger.info('Original Model path: %s' % ORIGINAL_MODEL_PATH)
+            ORIGINAL_MODEL = OriginalModel(
+                model_weight_path=ORIGINAL_MODEL_PATH,
+                device='cpu')
+        except:
+            return json.dumps({
+                'Error': {
+                    'Code': 'OriginalModel.FileNotFound',
+                    'Message': 'error in load model'
+                }
+            })
+        else:
+            app.logger.info('successfully load model: %s' % ORIGINAL_MODEL_PATH)
+
+    topk = 10
+    app.logger.info(ORIGINAL_MODEL)
+    prob_list, index_list, name_list = ORIGINAL_MODEL.top_k(
+        image_tensor, k=topk)
+
+    return json.dumps({
+        'image': base64.b64encode(SELECT_IMAGE).decode(),
+        'predict': {name_list[i]: prob_list[i] for i in range(topk)}
+    })
+
+
 @app.route('/api/robust_model', methods=['post'])
 def robust_model():
     """
@@ -114,20 +175,21 @@ def robust_model():
 
     image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
 
-    try:
-        app.logger.info('Robust Model path: %s' % ROBUST_MODEL_PATH)
-        ROBUST_MODEL = RobustResnet34(
-            model_weight_path=ROBUST_MODEL_PATH,
-            device='cpu')
-    except:
-        return json.dumps({
-            'Error': {
-                'Code': 'RobustModel.FileNotFound',
-                'Message': 'error in load model'
-            }
-        })
-    else:
-        app.logger.info('successfully load model: %s' % ROBUST_MODEL)
+    if ROBUST_MODEL is None:
+        try:
+            app.logger.info('Robust Model path: %s' % ROBUST_MODEL_PATH)
+            ROBUST_MODEL = RobustResnet34(
+                model_weight_path=ROBUST_MODEL_PATH,
+                device='cpu')
+        except:
+            return json.dumps({
+                'Error': {
+                    'Code': 'RobustModel.FileNotFound',
+                    'Message': 'error in load model'
+                }
+            })
+        else:
+            app.logger.info('successfully load model: %s' % ROBUST_MODEL)
 
     topk = 10
     prob_list, index_list, name_list = ROBUST_MODEL.top_k(image_tensor, k=topk)
@@ -137,6 +199,7 @@ def robust_model():
         'predict': {name_list[i]: prob_list[i] for i in range(topk)}
     })
 
+
 @app.route('/api/reconstructed_model', methods=['post'])
 def reconstructed_model():
     """
@@ -144,7 +207,11 @@ def reconstructed_model():
         ---
     """
     global RECON_IMAGE_TENSOR
-    recon_model = Recon(model_path='./api/api_recon/recon_model.pt', device='cpu')
+    global RECON_MODEL
+    if RECON_MODEL is None:
+        RECON_MODEL = Recon(
+            model_path='./api/api_recon/recon_model.pt', device='cpu')
+
 
     try:
         image: numpy.ndarray = cv2.cvtColor(
@@ -157,37 +224,72 @@ def reconstructed_model():
                 'Message': 'not select or upload image'
             }
         })
-    
+
     if image.shape[2] != 3:
         image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
     else:
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
-    image_recon:Tensor=recon_model.recon(image_in=image_tensor)    
-    RECON_IMAGE_TENSOR=image_recon
+    image_recon: Tensor = RECON_MODEL.recon(image_in=image_tensor)
+    RECON_IMAGE_TENSOR = image_recon
 
-    image_recon_np:numpy.ndarray=image_recon.detach().numpy()*255
-    image_recon_np=np.squeeze(image_recon_np)
-    image_recon_np=np.transpose(image_recon_np,(1,2,0))
-    image_recon_np=cv2.cvtColor(image_recon_np,cv2.COLOR_RGB2BGR)
+    image_recon_np: numpy.ndarray = image_recon.detach().numpy()*255
+    image_recon_np = np.squeeze(image_recon_np)
+    image_recon_np = np.transpose(image_recon_np, (1, 2, 0))
+    image_recon_np = cv2.cvtColor(image_recon_np, cv2.COLOR_RGB2BGR)
 
-    # image_base64 = base64.b64encode(image_recon_np).decode()
+    cv2.imwrite("static/image_recon.jpg", image_recon_np)
 
-    # with open("static/image_recon.jpg", 'w') as f:        
-    #     f.write(base64.b64encode(image_recon_np).decode())
+    with open("static/image_recon.jpg", 'rb') as f:
+        image_base64 = base64.b64encode(f.read()).decode()
 
-    cv2.imwrite("static/image_recon.jpg",image_recon_np)
-
-    with open("static/image_recon.jpg", 'rb') as f:   
-        image_base64=base64.b64encode(f.read()).decode()
-    
     return json.dumps({
-        "image":image_base64
+        "image": image_base64
+    })
+
+
+@app.route('/api/adversarial_detect', methods=['post'])
+def adversarial_detect():
+    """
+        Parameter
+        ---
+    """
+    global RECON_IMAGE_TENSOR
+
+    try:
+        image: numpy.ndarray = cv2.cvtColor(
+            np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
+        # cv2.imwrite('source/save.jpg', image)
+    except:
+        return json.dumps({
+            'Error': {
+                'Code': 'RobustModel.NotImage',
+                'Message': 'not select or upload image'
+            }
+        })
+
+    if image.shape[2] != 3:
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    else:
+        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+    image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
+
+    is_AE, probability, threshold = Detect(
+        model_path='api/api_detect/Detect.pkl',
+        device='cpu',
+        image_tensor=image_tensor,
+        thre=0.8).detect()
+
+    return json.dumps({
+        "is_adversarialExample": is_AE,
+        "probability": probability,
+        "threshold": threshold,
     })
 
 
 if __name__ == '__main__':
-    
+
     # app.run(host='192.168.1.141', port=2021)
     app.run(host='127.0.0.1', port=2021)

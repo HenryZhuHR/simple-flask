@@ -12,37 +12,14 @@ import requests
 
 import base64
 
-URL_BASE = 'http://1.116.121.100/api'
-# URL_BASE = 'http://127.0.0.1:2021'
+# URL_BASE = 'http://1.116.121.100/api'
+URL_BASE = 'http://127.0.0.1:2021/api'
 
-# Test select_image
-url = '%s/select_image' % URL_BASE
-data = {
-    'file_name': 'adv_100601.png'
-}
-"""
-Available files:
-    adv_100401.png
-    adv_100601.png
-    adv_100801.png
-    adv_101201.png
-    adv_101402.png
-    adv_101802.png
-"""
-response = requests.post(url, data=json.dumps(data))
-if 'Error' in response.json():
-    print('error:')
-    print(response.json()['Error'])
-else:
-    image_data = base64.b64decode(response.json()['image'])
-    with open('getImage.jpg', 'wb') as f_img:
-        f_img.write(image_data)
-print()
 
 
 # Test upload_image
 url = '%s/upload_image' % URL_BASE
-image_path='source/images/adv_100601.png'
+image_path='source/images/automobile_0002.jpg'
 data = {
     'image': base64.b64encode(open(image_path, 'rb').read()).decode()
 }
@@ -51,9 +28,23 @@ pprint(response.json())
 
 
 
+# Test original_model
+url = '%s/original_model' % URL_BASE
+response = requests.post(url, data=json.dumps({}))
+pprint(response.json()['predict'])
+
 # Test robust_model
 url = '%s/robust_model' % URL_BASE
 response = requests.post(url, data=json.dumps({}))
 pprint(response.json()['predict'])
 
+# Test reconstructed_model
+url = '%s/reconstructed_model' % URL_BASE
+response = requests.post(url, data=json.dumps({}))
+pprint(response.json())
+
+# Test adversarial_detect
+url = '%s/adversarial_detect' % URL_BASE
+response = requests.post(url, data=json.dumps({}))
+pprint(response.json())
 
