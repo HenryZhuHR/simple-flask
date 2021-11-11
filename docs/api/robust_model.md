@@ -11,7 +11,10 @@
 
 ## 2.输入参数
 
-无输入，但确保在调用之前，已经[选择图片](api/select_image.md)或者[上传图片](api/upload_image.md)
+在调用之前，已经[选择图片](api/select_image.md)或者[上传图片](api/upload_image.md)
+| 输入参数 | 描述                                                                                               |
+| :------- | :------------------------------------------------------------------------------------------------- |
+| mode     | `mode` 取 `original_image` 模型对原始图像进行预测，取 `reconstructed_image` 模型对重建图像进行预测 |
 
 
 ## 3.输出参数
@@ -28,6 +31,10 @@
 ```curl
 POST /api/robust_model HTTP/1.1
 Content-Type: application/json
+
+{
+    "mode": "original_image",
+}
 ```
 
 **输出示例**
@@ -73,8 +80,9 @@ Content-Type: application/json
 ```
 
 ## 5.错误码
-| 错误码                   | 描述                       |
-| :----------------------- | :------------------------- |
-| RobustModel.NotImage | 未选择或者未上传图片             |
-| RobustModel.ModelError | 模型加载失败。             |
+| 错误码                 | 描述                 |
+| :--------------------- | :------------------- |
+| RobustModel.LossParameter | 缺少参数 `mode`             |
+| RobustModel.NotImage   | 未选择或者未上传图片 |
+| RobustModel.ModelError | 模型加载失败。       |
 
