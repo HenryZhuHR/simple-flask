@@ -18,6 +18,7 @@ from api.api_robustModel import RobustResnet34
 from api.api_originalModel import OriginalModel
 from api.api_recon.recon import Recon
 from api.api_detect.detect import Detect
+from api.api_yolo.yolo import YOLO
 
 app = Flask(__name__,
             template_folder='templates',
@@ -46,6 +47,9 @@ ROBUST_MODEL = RobustResnet34(model_weight_path=ROBUST_MODEL_PATH,
 RECON_MODEL_PATH = './api/api_recon/recon_model.pt'
 RECON_MODEL = Recon(
     model_path=RECON_MODEL_PATH, device='cpu')
+YOLO_MODEL_PATH = 'api/api_yolo/yolo.pth'
+YOLO_CLASS_PATH = 'api/api_yolo/classes.txt'
+YOLO_MODEL = YOLO(model_path=YOLO_MODEL_PATH, classes_path=YOLO_CLASS_PATH)
 TRANSFORM = transforms.Compose(
     [transforms.Resize(224), transforms.ToTensor()])
 
@@ -53,7 +57,7 @@ TRANSFORM = transforms.Compose(
 @app.route("/")
 def hello():
     # return render_template('index.html')
-    return 'hello-1110'
+    return 'hello-1111-1705'
 
 
 @app.route('/api/upload_image', methods=['post'])
@@ -74,8 +78,11 @@ def upload_image():
                 'Message': 'parameter "image" not found in request'
             }
         })
+    
 
     global SELECT_IMAGE
+    global RECON_IMAGE_TENSOR
+    RECON_IMAGE_TENSOR=None
 
     try:
         image_data = base64.b64decode(data_json['image'])
@@ -98,31 +105,56 @@ def upload_image():
 def original_model():
     """
         Parameter
-        ---
+        - `mode`:
+            - original_image
+            - reconstructed_image
     """
-    global SELECT_IMAGE
-    global ORIGINAL_MODEL
-    global TRANSFORM
-
-    try:
-        image: numpy.ndarray = cv2.cvtColor(
-            np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
-        # cv2.imwrite('source/save.jpg', image)
-    except:
+    if not request.data:  # check if valid data
+        return _RETURN_INVALID_REQUEST_PARAMETER
+    # parase paramter
+    data_json = json.loads(request.data.decode('utf-8'))
+    if 'mode' not in data_json:
         return json.dumps({
             'Error': {
-                'Code': 'OriginalModel.NotImage',
-                'Message': 'not select or upload image'
+                'Code': 'OriginalModel.LossParameter',
+                'Message': 'parameter "mode" not found in request'
             }
         })
 
-    if image.shape[2] != 3:
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    global SELECT_IMAGE
+    global RECON_IMAGE_TENSOR
+    global ORIGINAL_MODEL
+    global TRANSFORM
+
+    if data_json['mode']=='original_image':
+        try:
+            image: numpy.ndarray = cv2.cvtColor(
+                np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
+            # cv2.imwrite('source/save.jpg', image)
+        except:
+            return json.dumps({
+                'Error': {
+                    'Code': 'OriginalModel.NotImage',
+                    'Message': 'not select or upload image'
+                }
+            })
+
+        if image.shape[2] != 3:
+            image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        else:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
+    elif data_json['mode']=='reconstructed_image' and (RECON_IMAGE_TENSOR is not None):
+        image_tensor=RECON_IMAGE_TENSOR
     else:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
-
+        return json.dumps({
+                'Error': {
+                    'Code': 'OriginalModel.NotReconstructedImage',
+                    'Message': 'please call /api/reconstructed_model fisrt'
+                }
+            })
+        
     if ORIGINAL_MODEL is None:
         try:
             app.logger.info('Original Model path: %s' % ORIGINAL_MODEL_PATH)
@@ -155,30 +187,55 @@ def original_model():
 def robust_model():
     """
         Parameter
-        ---
+        - `mode`:
+            - original_image
+            - reconstructed_image
     """
-    global SELECT_IMAGE
-    global ROBUST_MODEL
-    global TRANSFORM
-
-    try:
-        image: numpy.ndarray = cv2.cvtColor(
-            np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
-        # cv2.imwrite('source/save.jpg', image)
-    except:
+    if not request.data:  # check if valid data
+        return _RETURN_INVALID_REQUEST_PARAMETER
+    # parase paramter
+    data_json = json.loads(request.data.decode('utf-8'))
+    if 'mode' not in data_json:
         return json.dumps({
             'Error': {
-                'Code': 'RobustModel.NotImage',
-                'Message': 'not select or upload image'
+                'Code': 'RobustModel.LossParameter',
+                'Message': 'parameter "mode" not found in request'
             }
         })
 
-    if image.shape[2] != 3:
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
-    else:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+    global SELECT_IMAGE
+    global RECON_IMAGE_TENSOR
+    global ROBUST_MODEL
+    global TRANSFORM
 
-    image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
+    if data_json['mode']=='original_image':
+        try:
+            image: numpy.ndarray = cv2.cvtColor(
+                np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
+            # cv2.imwrite('source/save.jpg', image)
+        except:
+            return json.dumps({
+                'Error': {
+                    'Code': 'RobustModel.NotImage',
+                    'Message': 'not select or upload image'
+                }
+            })
+
+        if image.shape[2] != 3:
+            image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        else:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
+    elif data_json['mode']=='reconstructed_image' and (RECON_IMAGE_TENSOR is not None):
+        image_tensor=RECON_IMAGE_TENSOR
+    else:
+        return json.dumps({
+                'Error': {
+                    'Code': 'RobustModel.NotReconstructedImage',
+                    'Message': 'please call /api/reconstructed_model fisrt'
+                }
+            })
 
     if ROBUST_MODEL is None:
         try:
@@ -215,7 +272,6 @@ def reconstructed_model():
     global RECON_MODEL_PATH
     global RECON_MODEL
 
-
     if RECON_MODEL is None:
         try:
             app.logger.info('recon Model path: %s' % RECON_MODEL_PATH)
@@ -229,7 +285,6 @@ def reconstructed_model():
             })
         else:
             app.logger.info('successfully load model: %s' % RECON_MODEL_PATH)
-        
 
     try:
         image: numpy.ndarray = cv2.cvtColor(
@@ -271,27 +326,51 @@ def reconstructed_model():
 def adversarial_detect():
     """
         Parameter
-        ---
+        - `mode`:
+            - original_image
+            - reconstructed_image
     """
-    global SELECT_IMAGE
-    try:
-        image: numpy.ndarray = cv2.cvtColor(
-            np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
-        # cv2.imwrite('source/save.jpg', image)
-    except:
-        return json.dumps({
-            'Error': {
-                'Code': 'AdversarialDetect.NotImage',
-                'Message': 'not select or upload image'
-            }
-        })
+    if not request.data:  # check if valid data
+        return _RETURN_INVALID_REQUEST_PARAMETER
+    # parase paramter
+    data_json = json.loads(request.data.decode('utf-8'))
 
-    if image.shape[2] != 3:
-        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    if data_json['mode']=='original_image':
+        if 'mode' not in data_json:
+            return json.dumps({
+                'Error': {
+                    'Code': 'AdversarialDetect.LossParameter',
+                    'Message': 'parameter "mode" not found in request'
+                }
+            })
+        global SELECT_IMAGE
+        global RECON_IMAGE_TENSOR
+        try:
+            image: numpy.ndarray = cv2.cvtColor(
+                np.asarray(Image.open(io.BytesIO(SELECT_IMAGE))), cv2.COLOR_RGB2BGR)
+            # cv2.imwrite('source/save.jpg', image)
+        except:
+            return json.dumps({
+                'Error': {
+                    'Code': 'AdversarialDetect.NotImage',
+                    'Message': 'not select or upload image'
+                }
+            })
+        if image.shape[2] != 3:
+            image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+        else:
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+        image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
+    elif data_json['mode']=='reconstructed_image' and (RECON_IMAGE_TENSOR is not None):
+        image_tensor=RECON_IMAGE_TENSOR
     else:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    image_tensor: Tensor = TRANSFORM(Image.fromarray(image))
+        return json.dumps({
+                'Error': {
+                    'Code': 'AdversarialDetect.NotReconstructedImage',
+                    'Message': 'please call /api/reconstructed_model fisrt'
+                }
+            })
 
     is_AE, probability, threshold = Detect(
         model_path='api/api_detect/Detect.pkl',
@@ -303,6 +382,61 @@ def adversarial_detect():
         "is_adversarialExample": is_AE,
         "probability": probability,
         "threshold": threshold,
+    })
+
+
+@app.route('/api/physics_world', methods=['post'])
+def physics_world():
+    global SELECT_IMAGE
+    global YOLO_MODEL_PATH
+    global YOLO_CLASS_PATH
+    global YOLO_MODEL
+    try:
+        image = Image.open(io.BytesIO(SELECT_IMAGE))
+        # cv2.imwrite('source/save.jpg', image)
+    except:
+        return json.dumps({
+            'Error': {
+                'Code': 'Physics_World.NotImage',
+                'Message': 'not select or upload image'
+            }
+        })
+    if YOLO_MODEL is None:
+        try:
+            app.logger.info('yolo Model path: %s' % YOLO_MODEL_PATH)
+            app.logger.info('yolo Class path: %s' % YOLO_CLASS_PATH)
+            YOLO_MODEL = YOLO(model_path=YOLO_MODEL_PATH,
+                              classes_path=YOLO_CLASS_PATH)
+        except:
+            return json.dumps({
+                'Error': {
+                    'Code': 'Physics_World.ModelError',
+                    'Message': 'error in load model'
+                }
+            })
+    r_image, conf = YOLO_MODEL.detect_image1(image)
+    conf=conf.tolist()
+
+    cv2.imwrite("static/image_yolo.jpg", np.asarray(r_image))
+    with open("static/image_yolo.jpg", 'rb') as f:
+        image_base64 = base64.b64encode(f.read()).decode()
+
+    
+    return json.dumps({
+        "image": image_base64,
+        "predict": {
+            "car": conf[0],
+            "cargo_ship": conf[1],
+            "castle": conf[2],
+            "cg_ddg": conf[3],
+            "chair": conf[4],
+            "cruise_ship": conf[5],
+            "cvn": conf[6],
+            "monitor": conf[7],
+            "panda": conf[8],
+            "tanker_ship": conf[9],
+
+        }
     })
 
 

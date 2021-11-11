@@ -49,18 +49,13 @@ sudo pkill -f uwsgi -9
 sudo service uwsgi restart
 # 启动
 uwsgi --ini uwsgi.ini
-uwsgi --ini ../uwsgi.ini
 # 查看所有uWSGI进程
 ps aux | grep uwsgi
+cat log/uwsgi.log
 # 查看是否启动
 netstat -anp | grep 2021
 
-# 重启
-uwsgi --reload uwsgi.pid
-
-# 停止
-uwsgi --stop uwsgi.pid
-
+tail -f log/uwsgi.log
 ```
 
 教程：

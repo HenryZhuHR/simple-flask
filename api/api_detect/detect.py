@@ -1,4 +1,5 @@
 import torch
+from torch import Tensor
 from torchvision import transforms,datasets
 from PIL import Image
 from .nss.MSCN import *
@@ -9,7 +10,7 @@ classes=('正常样本', '对抗样本')
 class Detect:
     def __init__(self, model_path, device, image_tensor ,thre):
         self.model_path = model_path
-        self.image_tensor = image_tensor
+        self.image_tensor:Tensor = image_tensor
         self.thre =thre
 
         self.device = torch.device(device if torch.cuda.is_available() else 'cpu')

@@ -43,7 +43,7 @@ def calculate_mscn_coefficients(img, kernel_size, sigma):
     # img = (np.asarray(img) / 255.0).astype(np.float32)
     # img=np.reshape(img,(np.shape(img)[0],np.shape(img)[1],np.shape(img)[2]))
     if img.shape[2]!=1:
-        img=skimage.color.rgb2gray(img)
+        img=skimage.color.rgb2gray(img.detach().numpy())
     else:
         img = np.reshape(img, (img.shape[0], img.shape[1]))
 
