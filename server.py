@@ -1,3 +1,4 @@
+from typing import List
 from flask import Flask, request
 from flask import render_template  # 渲染
 import os
@@ -9,6 +10,7 @@ import numpy
 import numpy as np
 from PIL import Image
 from torch import Tensor
+import torch
 from torchvision import transforms
 
 
@@ -34,24 +36,64 @@ _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
     }
 })
 
+
+from torch import cuda
+DEVICE='cuda' if cuda.is_available() else 'cpu'
+print('[INFO] run in device',DEVICE)
+
 SELECT_IMAGE = None
 RECON_IMAGE_TENSOR = None
 
 
 ORIGINAL_MODEL_PATH = 'api/api_originalModel/models/resnet34.pt'
 ORIGINAL_MODEL = OriginalModel(model_weight_path=ORIGINAL_MODEL_PATH,
-                               device='cpu')
+                               device=DEVICE)
 ROBUST_MODEL_PATH = 'api/api_robustModel/models/at_recon~lr=1e-4-best.pt'
 ROBUST_MODEL = RobustResnet34(model_weight_path=ROBUST_MODEL_PATH,
-                              device='cpu')
+                              device=DEVICE)
 RECON_MODEL_PATH = './api/api_recon/recon_model.pt'
 RECON_MODEL = Recon(
-    model_path=RECON_MODEL_PATH, device='cpu')
-YOLO_MODEL_PATH = 'api/api_yolo/yolo.pth'
-YOLO_CLASS_PATH = 'api/api_yolo/classes.txt'
-YOLO_MODEL = YOLO(model_path=YOLO_MODEL_PATH, classes_path=YOLO_CLASS_PATH)
+    model_path=RECON_MODEL_PATH, device=DEVICE)
 TRANSFORM = transforms.Compose(
     [transforms.Resize(224), transforms.ToTensor()])
+
+YOLO_MODEL_PATH = 'api/api_yolo/yolo.pth'
+YOLO_CLASS_PATH = 'api/api_yolo/classes.txt'
+YOLO_MODEL = YOLO(
+    model_path=YOLO_MODEL_PATH, 
+    classes_path=YOLO_CLASS_PATH,
+    cuda=True if cuda.is_available() else False
+)
+
+from queue import Queue
+YOLO_LIST=Queue(maxsize=30)
+def run_forever():
+    capture = cv2.VideoCapture(0)
+    global YOLO_LIST
+    global YOLO_MODEL
+    
+    i=0
+    while i<=10:
+        i+=1
+        ref, frame = capture.read()
+        frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        frame = Image.fromarray(np.uint8(frame))
+        frame, conf = YOLO_MODEL.detect_image1(frame)
+        frame = np.array(frame)
+        # frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
+        if YOLO_LIST.full():
+            YOLO_LIST.get()
+        YOLO_LIST.put([frame,conf])
+        # print(YOLO_LIST.get()[1])
+        # cv2.imshow("video", frame)
+        # c = cv2.waitKey(1) & 0xff
+
+        # if c == ord('q'):
+        #     capture.release()
+        #     break
+    capture.release()
+    # cv2.destroyAllWindows()
+
 
 
 @app.route("/")
@@ -415,9 +457,11 @@ def physics_world():
                 }
             })
     r_image, conf = YOLO_MODEL.detect_image1(image)
+    r_image=np.asarray(r_image)
+    r_image=cv2.cvtColor(r_image,cv2.COLOR_BGR2RGB)
     conf=conf.tolist()
 
-    cv2.imwrite("static/image_yolo.jpg", np.asarray(r_image))
+    cv2.imwrite("static/image_yolo.jpg", r_image)
     with open("static/image_yolo.jpg", 'rb') as f:
         image_base64 = base64.b64encode(f.read()).decode()
 
@@ -440,7 +484,13 @@ def physics_world():
     })
 
 
+
 if __name__ == '__main__':
+    # from multiprocessing import Process
+    # p = Process(target=run_forever())
+    # p.daemon=True
+    # p.start()    
+    # print('start flask')
 
     # app.run(host='192.168.1.141', port=2021)
     app.run(host='127.0.0.1', port=2021)
