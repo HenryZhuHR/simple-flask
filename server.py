@@ -14,7 +14,7 @@ import torch
 from torchvision import transforms
 
 
-from flask_cors import CORS
+# from flask_cors import CORS
 
 from api.api_robustModel import RobustResnet34
 from api.api_originalModel import OriginalModel
@@ -27,7 +27,7 @@ app = Flask(__name__,
             static_folder='static',
             static_url_path='/static')
 app.debug = True
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+# CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 _RETURN_INVALID_REQUEST_PARAMETER = json.dumps({
     'Error': {
@@ -486,11 +486,4 @@ def physics_world():
 
 
 if __name__ == '__main__':
-    # from multiprocessing import Process
-    # p = Process(target=run_forever())
-    # p.daemon=True
-    # p.start()    
-    # print('start flask')
-
-    # app.run(host='192.168.1.141', port=2021)
     app.run(host='127.0.0.1', port=2021)

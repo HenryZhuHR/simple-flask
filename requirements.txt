@@ -1,4 +1,5 @@
-torch
-torchvison
+# torch
+# torchvison
 opencv-python
 flask
+# scikit-learn
