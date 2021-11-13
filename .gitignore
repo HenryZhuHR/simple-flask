@@ -1,2 +1,6 @@
 *.pyc
 *.exe
+
+source/default.jpg
+static/*.png
+static/*.jpg
